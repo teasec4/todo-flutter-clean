@@ -43,7 +43,7 @@ class AppRouter {
         GoRoute(
           path: '/error',
           builder: (context, state) =>
-              const Scaffold(body: Center(child: Text('Init error'))),
+              const Scaffold(body: Center(child: Text('初始化错误'))),
         ),
       ],
     );

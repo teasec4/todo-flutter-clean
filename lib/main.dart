@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
+import 'package:isar_test_todo/core/theme/app_theme.dart';
 import 'package:isar_test_todo/provider/app_initializer.dart';
 import 'package:isar_test_todo/provider/project_provider.dart';
 import 'package:isar_test_todo/provider/todo_provider.dart';
@@ -35,8 +36,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final init = context.watch<AppInitializer>();
     return MaterialApp.router(
-      title: 'Isar Demo',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.grey)),
+      title: '待办事项应用',
+      theme: AppTheme.lightTheme(),
       debugShowCheckedModeBanner: false,
       routerConfig: AppRouter.createRouter(init),
     );

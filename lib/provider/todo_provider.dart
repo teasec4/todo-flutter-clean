@@ -26,9 +26,10 @@ class TodoProvider with ChangeNotifier {
     final index = _todos.indexWhere((t) => t.id == id);
     if (index != -1) {
       final todo = _todos[index];
+      final newIsCompleted = !todo.isCompleted;
       _todos[index] = todo.copyWith(
-        isCompleted: !todo.isCompleted,
-        completedAt: !todo.isCompleted ? DateTime.now() : null,
+        isCompleted: newIsCompleted,
+        completedAt: newIsCompleted ? DateTime.now() : null,
       );
       notifyListeners();
     }
@@ -45,5 +46,10 @@ class TodoProvider with ChangeNotifier {
       _todos[index] = _todos[index].copyWith(title: title);
       notifyListeners();
     }
+  }
+
+  void deleteProjectTodos(String projectId) {
+    _todos.removeWhere((t) => t.projectId == projectId);
+    notifyListeners();
   }
 }

@@ -4,7 +4,6 @@ class Todo {
   final String title;
   final bool isCompleted;
   final DateTime createdAt;
-  final DateTime? completedAt;
 
   Todo({
     required this.id,
@@ -12,7 +11,6 @@ class Todo {
     required this.title,
     this.isCompleted = false,
     required this.createdAt,
-    this.completedAt,
   });
 
   Todo copyWith({
@@ -21,7 +19,6 @@ class Todo {
     String? title,
     bool? isCompleted,
     DateTime? createdAt,
-    DateTime? completedAt,
   }) {
     return Todo(
       id: id ?? this.id,
@@ -29,7 +26,6 @@ class Todo {
       title: title ?? this.title,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
-      completedAt: completedAt ?? this.completedAt,
     );
   }
 }

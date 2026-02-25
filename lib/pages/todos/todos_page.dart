@@ -5,14 +5,11 @@ import 'package:isar_test_todo/provider/project_provider.dart';
 import 'package:isar_test_todo/pages/todos/widgets/create_todo_sheet.dart';
 import 'package:isar_test_todo/pages/todos/widgets/todo_tile.dart';
 
-class TodosPage extends StatefulWidget {
+class TodosPage extends StatelessWidget {
   final String projectId;
-  const TodosPage({super.key, required this.projectId});
-  @override
-  State<TodosPage> createState() => _TodosPageState();
-}
 
-class _TodosPageState extends State<TodosPage> {
+  const TodosPage({super.key, required this.projectId});
+
   Future<void> _showCreateTodo(BuildContext context) async {
     final newTodoTitle = await showModalBottomSheet<String?>(
       context: context,
@@ -24,7 +21,7 @@ class _TodosPageState extends State<TodosPage> {
     if (!context.mounted) return;
 
     if (newTodoTitle != null && newTodoTitle.isNotEmpty) {
-      context.read<TodoProvider>().createTodo(widget.projectId, newTodoTitle);
+      context.read<TodoProvider>().createTodo(projectId, newTodoTitle);
     }
   }
 
@@ -58,12 +55,12 @@ class _TodosPageState extends State<TodosPage> {
   Widget build(BuildContext context) {
     final projectProvider = context.watch<ProjectProvider>();
     final project = projectProvider.projects.firstWhere(
-      (p) => p.id == widget.projectId,
+      (p) => p.id == projectId,
       orElse: () => projectProvider.projects.first,
     );
 
     final todoProvider = context.watch<TodoProvider>();
-    final todos = todoProvider.getTodosByProject(widget.projectId);
+    final todos = todoProvider.getTodosByProject(projectId);
 
     return Scaffold(
       appBar: AppBar(

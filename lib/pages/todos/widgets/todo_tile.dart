@@ -35,15 +35,6 @@ class TodoTile extends StatelessWidget {
             color: todo.isCompleted ? scheme.onSurfaceVariant : scheme.onSurface,
           ),
         ),
-        subtitle: todo.completedAt != null
-            ? Text(
-                'Completed at ${todo.completedAt!.hour}:${todo.completedAt!.minute.toString().padLeft(2, '0')}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: scheme.onSurfaceVariant,
-                ),
-              )
-            : null,
       ),
     );
   }

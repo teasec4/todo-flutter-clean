@@ -26,10 +26,8 @@ class TodoProvider with ChangeNotifier {
     final index = _todos.indexWhere((t) => t.id == id);
     if (index != -1) {
       final todo = _todos[index];
-      final newIsCompleted = !todo.isCompleted;
       _todos[index] = todo.copyWith(
-        isCompleted: newIsCompleted,
-        completedAt: newIsCompleted ? DateTime.now() : null,
+        isCompleted: !todo.isCompleted,
       );
       notifyListeners();
     }

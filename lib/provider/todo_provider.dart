@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:isar_test_todo/models/todo.dart';
+import 'package:uuid/uuid.dart';
+import 'package:isar_test_todo/data/models/todo.dart';
 
 class TodoProvider with ChangeNotifier {
   final List<Todo> _todos = [];
@@ -12,7 +13,7 @@ class TodoProvider with ChangeNotifier {
 
   void createTodo(String projectId, String title) {
     final todo = Todo(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: const Uuid().v4(),
       projectId: projectId,
       title: title,
       createdAt: DateTime.now(),

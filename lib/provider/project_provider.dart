@@ -1,35 +1,30 @@
 import 'package:flutter/foundation.dart';
-import 'package:isar_test_todo/models/project.dart';
+import 'package:isar_test_todo/data/repository/project_repository_impl.dart';
+import 'package:isar_test_todo/domain/repositories/project_repository.dart';
+import 'package:isar_test_todo/data/models/project.dart';
 
 class ProjectProvider with ChangeNotifier {
-  final List<Project> _projects = [];
+  final ProjectRepository _projectRepository = ProjectRepositoryImpl();
+  late List<Project> _projects;
+
+  ProjectProvider() {
+    _projects = _projectRepository.projects;
+  }
 
   List<Project> get projects => _projects;
 
   void createProject(String name, [String? description]) {
-    final project = Project(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      description: description,
-      createdAt: DateTime.now(),
-    );
-    _projects.add(project);
+    _projectRepository.createProject(name, description);
     notifyListeners();
   }
 
   void deleteProject(String id) {
-    _projects.removeWhere((p) => p.id == id);
+    _projectRepository.deleteProject(id);
     notifyListeners();
   }
 
   void updateProject(String id, String name, [String? description]) {
-    final index = _projects.indexWhere((p) => p.id == id);
-    if (index != -1) {
-      _projects[index] = _projects[index].copyWith(
-        name: name,
-        description: description,
-      );
-      notifyListeners();
-    }
+    _projectRepository.updateProject(id, name, description);
+    notifyListeners();
   }
 }

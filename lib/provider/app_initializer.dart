@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
-import 'package:isar_test_todo/entity/todo_entity.dart';
+import 'package:isar_test_todo/domain/entity/todo_entity.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum AppInitState { loading, ready, error }

@@ -5,13 +5,8 @@ import 'package:isar_test_todo/data/models/project.dart';
 
 class ProjectProvider with ChangeNotifier {
   final ProjectRepository _projectRepository = ProjectRepositoryImpl();
-  late List<Project> _projects;
 
-  ProjectProvider() {
-    _projects = _projectRepository.projects;
-  }
-
-  List<Project> get projects => _projects;
+  List<Project> get projects => _projectRepository.projects;
 
   void createProject(String name, [String? description]) {
     _projectRepository.createProject(name, description);

@@ -47,11 +47,11 @@ class _CreateProjectSheetState extends State<CreateProjectSheet> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Padding(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             left: 16,
             right: 16,
             top: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            bottom: 24,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -63,6 +63,10 @@ class _CreateProjectSheetState extends State<CreateProjectSheet> {
                 focusNode: _nameFocus,
                 controller: _nameController,
                 textInputAction: TextInputAction.next,
+                onEditingComplete: () {
+                  _nameFocus.unfocus();
+                  FocusScope.of(context).requestFocus(_descriptionFocus);
+                },
                 decoration: const InputDecoration(
                   hintText: '项目名称',
                   labelText: '名称',
@@ -136,5 +140,5 @@ class _CreateProjectSheetState extends State<CreateProjectSheet> {
         ),
       ),
     );
-  }
-          }
+    }
+    }

@@ -37,11 +37,11 @@ class _CreateTodoSheetState extends State<CreateTodoSheet> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Padding(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             left: 16,
             right: 16,
             top: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            bottom: 24,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -107,6 +107,6 @@ class _CreateTodoSheetState extends State<CreateTodoSheet> {
           ),
         ),
       ),
-    );
-  }
-          }
+      );
+      }
+      }

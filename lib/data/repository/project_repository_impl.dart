@@ -30,4 +30,8 @@ class ProjectRepositoryImpl implements ProjectRepository {
       await isar.projectEntitys.delete(id);
     });
   }
+
+  Stream<List<ProjectEntity>> watchProjects() {
+    return isar.projectEntitys.where().watch(fireImmediately: true);
+  }
 }

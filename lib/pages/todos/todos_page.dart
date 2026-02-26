@@ -5,10 +5,23 @@ import 'package:isar_test_todo/provider/project_provider.dart';
 import 'package:isar_test_todo/pages/todos/widgets/create_todo_sheet.dart';
 import 'package:isar_test_todo/pages/todos/widgets/todo_tile.dart';
 
-class TodosPage extends StatelessWidget {
+class TodosPage extends StatefulWidget {
   final int projectId;
 
   const TodosPage({super.key, required this.projectId});
+
+  @override
+  State<TodosPage> createState() => _TodosPageState();
+}
+
+class _TodosPageState extends State<TodosPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TodoProvider>().watchTodosByProject(widget.projectId);
+    });
+  }
 
   Future<void> _showCreateTodo(BuildContext context) async {
     final newTodoTitle = await showModalBottomSheet<String?>(
@@ -21,7 +34,7 @@ class TodosPage extends StatelessWidget {
     if (!context.mounted) return;
 
     if (newTodoTitle != null && newTodoTitle.isNotEmpty) {
-      context.read<TodoProvider>().createTodo(projectId, newTodoTitle);
+      await context.read<TodoProvider>().createTodo(widget.projectId, newTodoTitle);
     }
   }
 
@@ -37,9 +50,11 @@ class TodosPage extends StatelessWidget {
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () {
-              context.read<TodoProvider>().deleteTodo(todoId);
-              Navigator.pop(context);
+            onPressed: () async {
+              await context.read<TodoProvider>().deleteTodo(todoId);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
@@ -55,12 +70,13 @@ class TodosPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final projectProvider = context.watch<ProjectProvider>();
     final project = projectProvider.projects.firstWhere(
-      (p) => p.id == projectId,
-      orElse: () => projectProvider.projects.first,
+      (p) => p.id == widget.projectId,
+      orElse: () => projectProvider.projects.isEmpty 
+          ? throw StateError('No projects found')
+          : projectProvider.projects.first,
     );
 
     final todoProvider = context.watch<TodoProvider>();
-    context.watch<TodoProvider>().getAllTodosByProject(projectId);
     final todos = todoProvider.todos;
 
     return Scaffold(

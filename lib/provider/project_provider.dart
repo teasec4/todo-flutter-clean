@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:isar_test_todo/domain/entity/project_entity.dart';
 import 'package:isar_test_todo/domain/repositories/project_repository.dart';
@@ -8,21 +9,27 @@ class ProjectProvider with ChangeNotifier {
   List<ProjectEntity> _projects = [];
   List<ProjectEntity> get projects => _projects;
 
-  ProjectProvider(this._projectRepository);
+  late StreamSubscription<List<ProjectEntity>> _projectsSubscription;
 
-  Future<void> loadProjects() async {
-    _projects = await _projectRepository.getAllProjects();
-    notifyListeners();
+  ProjectProvider(this._projectRepository) {
+    _projectsSubscription = _projectRepository.watchProjects().listen((projects) {
+      _projects = projects;
+      notifyListeners();
+    });
   }
 
   Future<void> createProject(String name, [String? description]) async {
     await _projectRepository.createProject(name, description);
-    await loadProjects();
   }
 
   Future<void> deleteProject(int id) async {
     await _projectRepository.deleteProject(id);
-    await loadProjects();
+  }
+
+  @override
+  void dispose() {
+    _projectsSubscription.cancel();
+    super.dispose();
   }
 }
 

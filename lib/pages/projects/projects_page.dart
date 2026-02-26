@@ -3,11 +3,20 @@ import 'package:go_router/go_router.dart';
 import 'package:isar_test_todo/pages/projects/widgets/create_project_sheet.dart';
 import 'package:isar_test_todo/pages/projects/widgets/project_tile.dart';
 import 'package:isar_test_todo/provider/project_provider.dart';
-import 'package:isar_test_todo/provider/todo_provider.dart';
 import 'package:provider/provider.dart';
 
-class ProjectsPage extends StatelessWidget {
+class ProjectsPage extends StatefulWidget {
   const ProjectsPage({super.key});
+
+  @override
+  State<ProjectsPage> createState() => _ProjectsPageState();
+}
+
+class _ProjectsPageState extends State<ProjectsPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> _showCreateProject(BuildContext context) async {
     final newProject = await showModalBottomSheet<Map<String, String>?>(
@@ -41,7 +50,6 @@ class ProjectsPage extends StatelessWidget {
           TextButton(
             onPressed: () {
               context.read<ProjectProvider>().deleteProject(projectId);
-
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(
@@ -66,12 +74,6 @@ class ProjectsPage extends StatelessWidget {
               itemCount: projects.length,
               itemBuilder: (context, index) {
                 final project = projects[index];
-                context.watch<TodoProvider>().getAllTodosByProject(project.id);
-                final projectTodos = context.watch<TodoProvider>().todos;
-                
-                final completedCount = projectTodos
-                    .where((t) => t.isCompleted)
-                    .length;
 
                 return ProjectTile(
                   project: project,
@@ -81,8 +83,8 @@ class ProjectsPage extends StatelessWidget {
                   onLongPress: () {
                     _showDeleteConfirmation(context, project.id);
                   },
-                  totalTodos: projectTodos.length,
-                  completedTodos: completedCount,
+                  totalTodos: project.todos.length,
+                  completedTodos: project.todos.where((t) => t.isCompleted).length,
                 );
               },
             ),

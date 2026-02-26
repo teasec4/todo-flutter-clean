@@ -27,7 +27,12 @@ const TodoEntitySchema = CollectionSchema(
       name: r'isCompleted',
       type: IsarType.bool,
     ),
-    r'title': PropertySchema(id: 2, name: r'title', type: IsarType.string),
+    r'projectId': PropertySchema(
+      id: 2,
+      name: r'projectId',
+      type: IsarType.long,
+    ),
+    r'title': PropertySchema(id: 3, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _todoEntityEstimateSize,
@@ -35,15 +40,22 @@ const TodoEntitySchema = CollectionSchema(
   deserialize: _todoEntityDeserialize,
   deserializeProp: _todoEntityDeserializeProp,
   idName: r'id',
-  indexes: {},
-  links: {
-    r'project': LinkSchema(
-      id: -8580494823298184902,
-      name: r'project',
-      target: r'ProjectEntity',
-      single: true,
+  indexes: {
+    r'projectId': IndexSchema(
+      id: 3305656282123791113,
+      name: r'projectId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'projectId',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
     ),
   },
+  links: {},
   embeddedSchemas: {},
 
   getId: _todoEntityGetId,
@@ -70,7 +82,8 @@ void _todoEntitySerialize(
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeBool(offsets[1], object.isCompleted);
-  writer.writeString(offsets[2], object.title);
+  writer.writeLong(offsets[2], object.projectId);
+  writer.writeString(offsets[3], object.title);
 }
 
 TodoEntity _todoEntityDeserialize(
@@ -83,7 +96,8 @@ TodoEntity _todoEntityDeserialize(
   object.createdAt = reader.readDateTime(offsets[0]);
   object.id = id;
   object.isCompleted = reader.readBool(offsets[1]);
-  object.title = reader.readString(offsets[2]);
+  object.projectId = reader.readLong(offsets[2]);
+  object.title = reader.readString(offsets[3]);
   return object;
 }
 
@@ -99,6 +113,8 @@ P _todoEntityDeserializeProp<P>(
     case 1:
       return (reader.readBool(offset)) as P;
     case 2:
+      return (reader.readLong(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -110,17 +126,11 @@ Id _todoEntityGetId(TodoEntity object) {
 }
 
 List<IsarLinkBase<dynamic>> _todoEntityGetLinks(TodoEntity object) {
-  return [object.project];
+  return [];
 }
 
 void _todoEntityAttach(IsarCollection<dynamic> col, Id id, TodoEntity object) {
   object.id = id;
-  object.project.attach(
-    col,
-    col.isar.collection<ProjectEntity>(),
-    r'project',
-    id,
-  );
 }
 
 extension TodoEntityQueryWhereSort
@@ -128,6 +138,14 @@ extension TodoEntityQueryWhereSort
   QueryBuilder<TodoEntity, TodoEntity, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterWhere> anyProjectId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'projectId'),
+      );
     });
   }
 }
@@ -196,6 +214,111 @@ extension TodoEntityQueryWhere
           lower: lowerId,
           includeLower: includeLower,
           upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterWhereClause> projectIdEqualTo(
+    int projectId,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'projectId', value: [projectId]),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterWhereClause> projectIdNotEqualTo(
+    int projectId,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'projectId',
+                lower: [],
+                upper: [projectId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'projectId',
+                lower: [projectId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'projectId',
+                lower: [projectId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'projectId',
+                lower: [],
+                upper: [projectId],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterWhereClause> projectIdGreaterThan(
+    int projectId, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'projectId',
+          lower: [projectId],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterWhereClause> projectIdLessThan(
+    int projectId, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'projectId',
+          lower: [],
+          upper: [projectId],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterWhereClause> projectIdBetween(
+    int lowerProjectId,
+    int upperProjectId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'projectId',
+          lower: [lowerProjectId],
+          includeLower: includeLower,
+          upper: [upperProjectId],
           includeUpper: includeUpper,
         ),
       );
@@ -326,6 +449,63 @@ extension TodoEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(property: r'isCompleted', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> projectIdEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'projectId', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
+  projectIdGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'projectId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> projectIdLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'projectId',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> projectIdBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'projectId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
       );
     });
   }
@@ -482,21 +662,7 @@ extension TodoEntityQueryObject
     on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {}
 
 extension TodoEntityQueryLinks
-    on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> project(
-    FilterQuery<ProjectEntity> q,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'project');
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> projectIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'project', 0, true, 0, true);
-    });
-  }
-}
+    on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {}
 
 extension TodoEntityQuerySortBy
     on QueryBuilder<TodoEntity, TodoEntity, QSortBy> {
@@ -521,6 +687,18 @@ extension TodoEntityQuerySortBy
   QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> sortByIsCompletedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isCompleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> sortByProjectId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> sortByProjectIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectId', Sort.desc);
     });
   }
 
@@ -575,6 +753,18 @@ extension TodoEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> thenByProjectId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> thenByProjectIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectId', Sort.desc);
+    });
+  }
+
   QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> thenByTitle() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.asc);
@@ -599,6 +789,12 @@ extension TodoEntityQueryWhereDistinct
   QueryBuilder<TodoEntity, TodoEntity, QDistinct> distinctByIsCompleted() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isCompleted');
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QDistinct> distinctByProjectId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'projectId');
     });
   }
 
@@ -628,6 +824,12 @@ extension TodoEntityQueryProperty
   QueryBuilder<TodoEntity, bool, QQueryOperations> isCompletedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isCompleted');
+    });
+  }
+
+  QueryBuilder<TodoEntity, int, QQueryOperations> projectIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'projectId');
     });
   }
 

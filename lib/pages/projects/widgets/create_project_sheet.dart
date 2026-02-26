@@ -27,6 +27,7 @@ class _CreateProjectSheetState extends State<CreateProjectSheet> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _nameFocus.dispose();
     super.dispose();
   }
 

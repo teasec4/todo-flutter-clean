@@ -13,7 +13,7 @@ class TodoRepositoryImpl implements TodoRepository {
   Future<List<TodoEntity>> getAllTodosByProject(int projectId) async {
     return await isar.todoEntitys
         .filter()
-        .project((q) => q.idEqualTo(projectId))
+        .projectIdEqualTo(projectId)
         .findAll();
   }
 
@@ -26,13 +26,14 @@ class TodoRepositoryImpl implements TodoRepository {
     final todo = TodoEntity()
       ..title = title
       ..isCompleted = false
-      ..createdAt = DateTime.now();
+      ..createdAt = DateTime.now()
+      ..projectId = projectId;
 
     await isar.writeTxn(() async {
       await isar.todoEntitys.put(todo);
-
       project.todos.add(todo);
       await project.todos.save();
+      await isar.projectEntitys.put(project);
     });
   }
 
@@ -54,16 +55,13 @@ class TodoRepositoryImpl implements TodoRepository {
     });
   }
 
-  // not sure we need it
-  Stream<List<TodoEntity>> watchTodos() {
-    return isar.todoEntitys.where().watch(fireImmediately: true);
+  Stream<List<TodoEntity>> watchTodosByProject(int projectId) {
+    return isar.todoEntitys
+        .filter()
+        .projectIdEqualTo(projectId)
+        .watch(fireImmediately: true);
   }
 
-  // StreamBuilder(
-  //   stream: repository.watchTodos(),
-  //   builder: ...
-  // )
-  //
   Future<List<TodoEntity>> getCompleted() async {
     return await isar.todoEntitys.filter().isCompletedEqualTo(true).findAll();
   }

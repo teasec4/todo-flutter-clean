@@ -1,11 +1,10 @@
-import 'package:isar_test_todo/data/models/todo.dart';
+import 'package:isar_test_todo/domain/entity/todo_entity.dart';
 
 abstract class TodoRepository {
-  List<Todo> get todos;
-  List<Todo> getTodosByProject(String projectId);
-  void createTodo(String projectId, String title);
-  void toggleTodo(String id);
-  void deleteTodo(String id);
-  void updateTodo(String id, String title);
-  void deleteProjectTodos(String projectId);
+  Future<List<TodoEntity>> getAllTodos();
+  // List<Todo> getTodosByProject(String projectId);
+  Future<void> addTodo(int projectId, String title);
+  Future<void> deleteTodo(int id);
+  Future<void> toggleTodo(int id);
+    
 }

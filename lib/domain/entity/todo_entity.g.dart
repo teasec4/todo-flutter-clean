@@ -17,22 +17,17 @@ const TodoEntitySchema = CollectionSchema(
   name: r'TodoEntity',
   id: -5831862288383718631,
   properties: {
-    r'completedAt': PropertySchema(
-      id: 0,
-      name: r'completedAt',
-      type: IsarType.dateTime,
-    ),
     r'createdAt': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'isCompleted': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'isCompleted',
       type: IsarType.bool,
     ),
-    r'title': PropertySchema(id: 3, name: r'title', type: IsarType.string),
+    r'title': PropertySchema(id: 2, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _todoEntityEstimateSize,
@@ -41,7 +36,14 @@ const TodoEntitySchema = CollectionSchema(
   deserializeProp: _todoEntityDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {},
+  links: {
+    r'project': LinkSchema(
+      id: -8580494823298184902,
+      name: r'project',
+      target: r'ProjectEntity',
+      single: true,
+    ),
+  },
   embeddedSchemas: {},
 
   getId: _todoEntityGetId,
@@ -66,10 +68,9 @@ void _todoEntitySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.completedAt);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeBool(offsets[2], object.isCompleted);
-  writer.writeString(offsets[3], object.title);
+  writer.writeDateTime(offsets[0], object.createdAt);
+  writer.writeBool(offsets[1], object.isCompleted);
+  writer.writeString(offsets[2], object.title);
 }
 
 TodoEntity _todoEntityDeserialize(
@@ -79,11 +80,10 @@ TodoEntity _todoEntityDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = TodoEntity();
-  object.completedAt = reader.readDateTimeOrNull(offsets[0]);
-  object.createdAt = reader.readDateTime(offsets[1]);
+  object.createdAt = reader.readDateTime(offsets[0]);
   object.id = id;
-  object.isCompleted = reader.readBool(offsets[2]);
-  object.title = reader.readString(offsets[3]);
+  object.isCompleted = reader.readBool(offsets[1]);
+  object.title = reader.readString(offsets[2]);
   return object;
 }
 
@@ -95,12 +95,10 @@ P _todoEntityDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 1:
       return (reader.readDateTime(offset)) as P;
-    case 2:
+    case 1:
       return (reader.readBool(offset)) as P;
-    case 3:
+    case 2:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -112,11 +110,17 @@ Id _todoEntityGetId(TodoEntity object) {
 }
 
 List<IsarLinkBase<dynamic>> _todoEntityGetLinks(TodoEntity object) {
-  return [];
+  return [object.project];
 }
 
 void _todoEntityAttach(IsarCollection<dynamic> col, Id id, TodoEntity object) {
   object.id = id;
+  object.project.attach(
+    col,
+    col.isar.collection<ProjectEntity>(),
+    r'project',
+    id,
+  );
 }
 
 extension TodoEntityQueryWhereSort
@@ -201,79 +205,6 @@ extension TodoEntityQueryWhere
 
 extension TodoEntityQueryFilter
     on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
-  completedAtIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'completedAt'),
-      );
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
-  completedAtIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'completedAt'),
-      );
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
-  completedAtEqualTo(DateTime? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'completedAt', value: value),
-      );
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
-  completedAtGreaterThan(DateTime? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'completedAt',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
-  completedAtLessThan(DateTime? value, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'completedAt',
-          value: value,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition>
-  completedAtBetween(
-    DateTime? lower,
-    DateTime? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'completedAt',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> createdAtEqualTo(
     DateTime value,
   ) {
@@ -551,22 +482,24 @@ extension TodoEntityQueryObject
     on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {}
 
 extension TodoEntityQueryLinks
-    on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {}
+    on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> project(
+    FilterQuery<ProjectEntity> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'project');
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> projectIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'project', 0, true, 0, true);
+    });
+  }
+}
 
 extension TodoEntityQuerySortBy
     on QueryBuilder<TodoEntity, TodoEntity, QSortBy> {
-  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> sortByCompletedAt() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'completedAt', Sort.asc);
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> sortByCompletedAtDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'completedAt', Sort.desc);
-    });
-  }
-
   QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -606,18 +539,6 @@ extension TodoEntityQuerySortBy
 
 extension TodoEntityQuerySortThenBy
     on QueryBuilder<TodoEntity, TodoEntity, QSortThenBy> {
-  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> thenByCompletedAt() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'completedAt', Sort.asc);
-    });
-  }
-
-  QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> thenByCompletedAtDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'completedAt', Sort.desc);
-    });
-  }
-
   QueryBuilder<TodoEntity, TodoEntity, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -669,12 +590,6 @@ extension TodoEntityQuerySortThenBy
 
 extension TodoEntityQueryWhereDistinct
     on QueryBuilder<TodoEntity, TodoEntity, QDistinct> {
-  QueryBuilder<TodoEntity, TodoEntity, QDistinct> distinctByCompletedAt() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'completedAt');
-    });
-  }
-
   QueryBuilder<TodoEntity, TodoEntity, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -701,12 +616,6 @@ extension TodoEntityQueryProperty
   QueryBuilder<TodoEntity, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<TodoEntity, DateTime?, QQueryOperations> completedAtProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'completedAt');
     });
   }
 

@@ -1,8 +1,6 @@
-import 'package:isar_test_todo/data/models/project.dart';
+import 'package:isar_test_todo/domain/entity/project_entity.dart';
 
 abstract class ProjectRepository {
-  List<Project> get projects;
-  void createProject(String name, [String? description]);
-  void deleteProject(String id);
-  void updateProject(String id, String name, [String? description]);
-}
+  Future<List<ProjectEntity>> getAllProjects();
+  Future<void> createProject(String name, [String? description]);
+  Future<void> deleteProject(int id);

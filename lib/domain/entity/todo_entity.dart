@@ -1,4 +1,5 @@
 import 'package:isar_community/isar.dart';
+import 'package:isar_test_todo/domain/entity/project_entity.dart';
 
 part 'todo_entity.g.dart';
 
@@ -11,6 +12,7 @@ class TodoEntity {
   late bool isCompleted;
 
   late DateTime createdAt;
+  
+  final project = IsarLink<ProjectEntity>();
 
-  DateTime? completedAt;
 }

@@ -1,55 +1,67 @@
-import 'package:isar_test_todo/data/models/todo.dart';
+import 'package:isar_community/isar.dart';
+import 'package:isar_test_todo/domain/entity/project_entity.dart';
+
+import 'package:isar_test_todo/domain/entity/todo_entity.dart';
 import 'package:isar_test_todo/domain/repositories/todo_repository.dart';
-import 'package:uuid/uuid.dart';
 
 class TodoRepositoryImpl implements TodoRepository {
-  final List<Todo> _todos = [];
+  final Isar _isar;
+
+  TodoRepositoryImpl(this._isar);
 
   @override
-  List<Todo> get todos => _todos;
-
-  @override
-  void createTodo(String projectId, String title) {
-    final todo = Todo(
-      id: const Uuid().v4(),
-      projectId: projectId,
-      title: title,
-      createdAt: DateTime.now(),
-    );
-    _todos.add(todo);
+  Future<List<TodoEntity>> getAllTodos() async {
+    return await _isar.todoEntitys.where().findAll();
   }
 
   @override
-  void toggleTodo(String id) {
-    final index = _todos.indexWhere((t) => t.id == id);
-    if (index != -1) {
-      final todo = _todos[index];
-      _todos[index] = todo.copyWith(
-        isCompleted: !todo.isCompleted,
-      );
-    }
+  Future<void> addTodo(int projectId, String title) async {
+    final project = await _isar.projectEntitys.get(projectId);
+    // guard
+    if (project == null) return;
+    
+    final todo = TodoEntity()
+      ..title = title
+      ..isCompleted = false
+      ..createdAt = DateTime.now();
+
+    await _isar.writeTxn(() async {
+      await _isar.todoEntitys.put(todo);
+
+      project.todos.add(todo);
+      await project.todos.save();
+    });
   }
 
   @override
-  void deleteTodo(String id) {
-    _todos.removeWhere((t) => t.id == id);
+  Future<void> toggleTodo(int id) async {
+    final todo = await _isar.todoEntitys.get(id);
+    if (todo == null) return;
+
+    await _isar.writeTxn(() async {
+      todo.isCompleted = !todo.isCompleted;
+      await _isar.todoEntitys.put(todo);
+    });
   }
 
   @override
-  void updateTodo(String id, String title) {
-    final index = _todos.indexWhere((t) => t.id == id);
-    if (index != -1) {
-      _todos[index] = _todos[index].copyWith(title: title);
-    }
+  Future<void> deleteTodo(int id) async {
+    await _isar.writeTxn(() async {
+      await _isar.todoEntitys.delete(id);
+    });
   }
 
-  @override
-  void deleteProjectTodos(String projectId) {
-    _todos.removeWhere((t) => t.projectId == projectId);
+  // not sure we need it
+  Stream<List<TodoEntity>> watchTodos() {
+    return _isar.todoEntitys.where().watch(fireImmediately: true);
   }
 
-  @override
-  List<Todo> getTodosByProject(String projectId) {
-    return _todos.where((t) => t.projectId == projectId).toList();
+  // StreamBuilder(
+  //   stream: repository.watchTodos(),
+  //   builder: ...
+  // )
+  //
+  Future<List<TodoEntity>> getCompleted() async {
+    return await _isar.todoEntitys.filter().isCompletedEqualTo(true).findAll();
   }
 }

@@ -1,37 +1,33 @@
-import 'package:isar_test_todo/data/models/project.dart';
+import 'package:isar_community/isar.dart';
+import 'package:isar_test_todo/domain/entity/project_entity.dart';
 import 'package:isar_test_todo/domain/repositories/project_repository.dart';
-import 'package:uuid/uuid.dart';
 
 class ProjectRepositoryImpl implements ProjectRepository {
-  final List<Project> _projects = [];
+  final Isar isar;
+
+  ProjectRepositoryImpl({required this.isar});
 
   @override
-  List<Project> get projects => _projects;
-  
-  @override
-  void createProject(String name, [String? description]) {
-    final project = Project(
-      id: const Uuid().v4(),
-      name: name,
-      description: description,
-      createdAt: DateTime.now(),
-    );
-    _projects.add(project);
+  Future<List<ProjectEntity>> getAllProjects() async {
+    return await isar.projectEntitys.where().findAll();
   }
-    
+
   @override
-  void deleteProject(String id) {
-   _projects.removeWhere((p) => p.id == id);
+  Future<void> createProject(String name, [String? description]) async {
+    final project = ProjectEntity()
+      ..name = name
+      ..description = description
+      ..createdAt = DateTime.now();
+
+    await isar.writeTxn(() async {
+      await isar.projectEntitys.put(project);
+    });
   }
-  
+
   @override
-  void updateProject(String id, String name, [String? description]) {
-    final index = _projects.indexWhere((p) => p.id == id);
-    if (index != -1) {
-      _projects[index] = _projects[index].copyWith(
-        name: name,
-        description: description,
-      );
-    }
+  Future<void> deleteProject(int id) async {
+    await isar.writeTxn(() async {
+      await isar.projectEntitys.delete(id);
+    });
   }
 }

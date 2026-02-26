@@ -17,22 +17,20 @@ class TodoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Card(
-      key: ObjectKey(todo),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
-        onLongPress: onLongPress,
-        leading: Checkbox(
-          value: todo.isCompleted,
-          onChanged: (_) => onToggle(),
-        ),
-        title: Text(
+    return GestureDetector(
+      onTap: onToggle,
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Text(
           todo.title,
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 16,
             decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
-            color: todo.isCompleted ? scheme.onSurfaceVariant : scheme.onSurface,
+            color: todo.isCompleted 
+                ? scheme.outlineVariant
+                : scheme.onSurface,
           ),
         ),
       ),

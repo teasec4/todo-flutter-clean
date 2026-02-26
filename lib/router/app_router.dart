@@ -6,15 +6,15 @@ import 'package:isar_test_todo/pages/todos/todos_page.dart' as todos_page;
 import 'package:isar_test_todo/provider/app_initializer.dart';
 
 class AppRouter {
-  static GoRouter createRouter(AppInitializer init) {
+  static GoRouter createRouter(AppInitializer appInit) {
     return GoRouter(
       initialLocation: '/',
-      refreshListenable: init,
+      refreshListenable: appInit,
       redirect: (context, state) {
-        if (init.state == AppInitState.loading) {
+        if (appInit.state == AppInitState.loading) {
           return 'loading';
         }
-        if (init.state == AppInitState.error) {
+        if (appInit.state == AppInitState.error) {
           return 'error';
         }
         return null;
@@ -48,8 +48,30 @@ class AppRouter {
         // Isar Init ERROR
         GoRoute(
           path: '/error',
-          builder: (context, state) =>
-              const Scaffold(body: Center(child: Text('初始化错误'))),
+          builder: (context, state) {
+            final errorMsg = appInit.errorMessage ?? '未知错误';
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    const Text('初始化错误', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        errorMsg,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
+import 'package:isar_test_todo/core/di/service_locator.dart';
 import 'package:isar_test_todo/core/theme/app_theme.dart';
-import 'package:isar_test_todo/data/repository/project_repository_impl.dart';
-import 'package:isar_test_todo/data/repository/todo_repository_impl.dart';
 import 'package:isar_test_todo/provider/app_initializer.dart';
 import 'package:isar_test_todo/provider/project_provider.dart';
 import 'package:isar_test_todo/provider/todo_provider.dart';
@@ -14,45 +13,32 @@ void main() async {
 
   await Isar.initializeIsarCore(download: true);
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AppInitializer()..init()),
-        ChangeNotifierProxyProvider<AppInitializer, TodoProvider>(
-          lazy: false,
-          create: (context) => TodoProvider(
-            TodoRepositoryImpl(context.read<AppInitializer>().isar),
-          ),
-          update: (context, appInit, previous) => TodoProvider(
-            TodoRepositoryImpl(appInit.isar),
-          ),
-        ),
-        ChangeNotifierProxyProvider<AppInitializer, ProjectProvider>(
-          lazy: false,
-          create: (context) => ProjectProvider(
-            ProjectRepositoryImpl(isar: context.read<AppInitializer>().isar),
-          ),
-          update: (context, appInit, previous) => ProjectProvider(
-            ProjectRepositoryImpl(isar: appInit.isar),
-          ),
-        ),
-      ],
-      child: MyApp(),
-    ),
-  );
+  final appInit = AppInitializer();
+  await appInit.init();
+
+  setupServiceLocator(appInit.isar);
+
+  runApp(MyApp(appInit: appInit));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppInitializer appInit;
+
+  const MyApp({super.key, required this.appInit});
 
   @override
   Widget build(BuildContext context) {
-    final init = context.watch<AppInitializer>();
-    return MaterialApp.router(
-      title: '待办事项应用',
-      theme: AppTheme.lightTheme(),
-      debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.createRouter(init),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: getIt<ProjectProvider>()),
+        ChangeNotifierProvider.value(value: getIt<TodoProvider>()),
+      ],
+      child: MaterialApp.router(
+        title: '待办事项应用',
+        theme: AppTheme.lightTheme(),
+        debugShowCheckedModeBanner: false,
+        routerConfig: AppRouter.createRouter(appInit),
+      ),
     );
   }
 }

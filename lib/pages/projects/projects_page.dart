@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:isar_test_todo/core/di/service_locator.dart';
 import 'package:isar_test_todo/pages/projects/widgets/create_project_sheet.dart';
 import 'package:isar_test_todo/pages/projects/widgets/project_tile.dart';
 import 'package:isar_test_todo/provider/project_provider.dart';
@@ -20,7 +21,7 @@ class ProjectsPage extends StatelessWidget {
     if (!context.mounted) return;
 
     if (newProject != null) {
-      context.read<ProjectProvider>().createProject(
+      getIt<ProjectProvider>().createProject(
         newProject['name'] ?? '',
         newProject['description'],
       );
@@ -40,7 +41,7 @@ class ProjectsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              context.read<ProjectProvider>().deleteProject(projectId);
+              getIt<ProjectProvider>().deleteProject(projectId);
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(

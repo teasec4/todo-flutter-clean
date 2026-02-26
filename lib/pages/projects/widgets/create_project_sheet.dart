@@ -24,7 +24,6 @@ class _CreateProjectSheetState extends State<CreateProjectSheet> {
     _nameFocus = FocusNode();
     _descriptionFocus = FocusNode();
     
-    // Автофокус на имя при открытии
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _nameFocus.requestFocus();
     });
@@ -41,104 +40,102 @@ class _CreateProjectSheetState extends State<CreateProjectSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    return Container(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 24,
-            bottom: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("创建新项目"),
-              const SizedBox(height: 20),
-              TextField(
-                focusNode: _nameFocus,
-                controller: _nameController,
-                textInputAction: TextInputAction.next,
-                onEditingComplete: () {
-                  _nameFocus.unfocus();
-                  FocusScope.of(context).requestFocus(_descriptionFocus);
-                },
-                decoration: const InputDecoration(
-                  hintText: '项目名称',
-                  labelText: '名称',
-                  prefixIcon: Icon(Icons.folder),
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("创建新项目"),
+            const SizedBox(height: 20),
+            TextField(
+              focusNode: _nameFocus,
+              controller: _nameController,
+              textInputAction: TextInputAction.next,
+              onEditingComplete: () {
+                _nameFocus.unfocus();
+                FocusScope.of(context).requestFocus(_descriptionFocus);
+              },
+              decoration: const InputDecoration(
+                hintText: '项目名称',
+                labelText: '名称',
+                prefixIcon: Icon(Icons.folder),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                focusNode: _descriptionFocus,
-                controller: _descriptionController,
-                textInputAction: TextInputAction.done,
-                maxLines: 3,
-                minLines: 1,
-                onSubmitted: (_) {
-                  if (_nameController.text.isNotEmpty) {
-                    context.pop({
-                      'name': _nameController.text,
-                      'description': _descriptionController.text,
-                    });
-                  }
-                },
-                decoration: const InputDecoration(
-                  hintText: '项目描述',
-                  labelText: '描述',
-                  prefixIcon: Icon(Icons.description),
-                ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              focusNode: _descriptionFocus,
+              controller: _descriptionController,
+              textInputAction: TextInputAction.done,
+              maxLines: 3,
+              minLines: 1,
+              onSubmitted: (_) {
+                if (_nameController.text.isNotEmpty) {
+                  context.pop({
+                    'name': _nameController.text,
+                    'description': _descriptionController.text,
+                  });
+                }
+              },
+              decoration: const InputDecoration(
+                hintText: '项目描述',
+                labelText: '描述',
+                prefixIcon: Icon(Icons.description),
               ),
-              const SizedBox(height: 20),
-              ValueListenableBuilder<TextEditingValue>(
-                valueListenable: _nameController,
-                builder: (context, value, child) {
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onSurface,
-                          ),
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: const Text("取消"),
+            ),
+            const SizedBox(height: 20),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _nameController,
+              builder: (context, value, child) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSurface,
                         ),
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: const Text("取消"),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: value.text.isEmpty
-                              ? null
-                              : () {
-                                  context.pop({
-                                    'name': value.text,
-                                    'description':
-                                        _descriptionController.text,
-                                  });
-                                },
-                          child: const Text("提交"),
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: value.text.isEmpty
+                            ? null
+                            : () {
+                                context.pop({
+                                  'name': value.text,
+                                  'description':
+                                      _descriptionController.text,
+                                });
+                              },
+                        child: const Text("提交"),
                       ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
-    }
-    }
+  }
+}

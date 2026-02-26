@@ -65,13 +65,6 @@ class TodoRepositoryImpl implements TodoRepository {
     });
   }
 
-  Stream<List<TodoEntity>> watchTodosByProject(int projectId) {
-    return isar.todoEntitys
-        .filter()
-        .projectIdEqualTo(projectId)
-        .watch(fireImmediately: true);
-  }
-
   Stream<List<TodoEntity>> watchAllTodos() {
     return isar.todoEntitys.where().watch(fireImmediately: true);
   }

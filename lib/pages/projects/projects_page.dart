@@ -6,18 +6,8 @@ import 'package:isar_test_todo/provider/project_provider.dart';
 import 'package:isar_test_todo/provider/todo_provider.dart';
 import 'package:provider/provider.dart';
 
-class ProjectsPage extends StatefulWidget {
+class ProjectsPage extends StatelessWidget {
   const ProjectsPage({super.key});
-
-  @override
-  State<ProjectsPage> createState() => _ProjectsPageState();
-}
-
-class _ProjectsPageState extends State<ProjectsPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   Future<void> _showCreateProject(BuildContext context) async {
     final newProject = await showModalBottomSheet<Map<String, String>?>(

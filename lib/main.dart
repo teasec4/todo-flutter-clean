@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
 import 'package:isar_test_todo/core/theme/app_theme.dart';
 import 'package:isar_test_todo/data/repository/project_repository_impl.dart';
+import 'package:isar_test_todo/data/repository/todo_repository_impl.dart';
 import 'package:isar_test_todo/provider/app_initializer.dart';
 import 'package:isar_test_todo/provider/project_provider.dart';
 import 'package:isar_test_todo/provider/todo_provider.dart';
@@ -20,7 +21,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) {
             
-            return TodoProvider();
+            return TodoProvider(
+              TodoRepositoryImpl(context.read<AppInitializer>().isar),
+            );
           },
         ),
         ChangeNotifierProvider(create: (context) => ProjectProvider(

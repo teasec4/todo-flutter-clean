@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:isar_test_todo/data/models/project.dart';
+import 'package:isar_test_todo/domain/entity/project_entity.dart';
 
 class ProjectTile extends StatelessWidget {
-  final Project project;
+  final ProjectEntity project;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final int totalTodos;

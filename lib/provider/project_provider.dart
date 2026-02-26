@@ -11,19 +11,19 @@ class ProjectProvider with ChangeNotifier {
   ProjectProvider(this._projectRepository);
 
   Future<void> loadProjects() async {
-      _projects = await _projectRepository.getAllProjects();
-      notifyListeners();
-    }
-  
-    Future<void> createProject(String name, [String? description]) async {
-      await _projectRepository.createProject(name, description);
-      await loadProjects();
-    }
-  
-    Future<void> deleteProject(int id) async {
-      await _projectRepository.deleteProject(id);
-      await loadProjects();
-    }
+    _projects = await _projectRepository.getAllProjects();
+    notifyListeners();
+  }
+
+  Future<void> createProject(String name, [String? description]) async {
+    await _projectRepository.createProject(name, description);
+    await loadProjects();
+  }
+
+  Future<void> deleteProject(int id) async {
+    await _projectRepository.deleteProject(id);
+    await loadProjects();
+  }
 }
 
 // isar.projectEntitys.where().watch(fireImmediately: true);

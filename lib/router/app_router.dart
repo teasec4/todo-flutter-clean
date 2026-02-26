@@ -25,10 +25,16 @@ class AppRouter {
           builder: (context, state) => const projects_page.ProjectsPage(),
           routes: [
             GoRoute(
-              path: '/:projectId/todos',
+              path: ':projectId/todos',
               builder: (context, state) {
-                final projectId = state.pathParameters['projectId'];
-                return todos_page.TodosPage(projectId: projectId ?? "unknownId");
+                final idParam = state.pathParameters['projectId'];
+                final projectId = int.tryParse(idParam ?? '');
+                if (projectId == null) {
+                  return const Scaffold(
+                    body: Center(child: Text('Invalid project id')),
+                  );
+                }
+                return todos_page.TodosPage(projectId: projectId);
               },
             ),
           ],

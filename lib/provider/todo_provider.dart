@@ -1,39 +1,33 @@
 import 'package:flutter/foundation.dart';
-import 'package:isar_test_todo/data/repository/todo_repository_impl.dart';
+import 'package:isar_test_todo/domain/entity/todo_entity.dart';
 import 'package:isar_test_todo/domain/repositories/todo_repository.dart';
-import 'package:isar_test_todo/data/models/todo.dart';
 
 class TodoProvider with ChangeNotifier {
-  final TodoRepository _todoRepository = TodoRepositoryImpl();
+  final TodoRepository _todoRepository;
 
-  List<Todo> get todos => _todoRepository.todos;
+  TodoProvider(this._todoRepository);
 
-  List<Todo> getTodosByProject(String projectId) {
-    return _todoRepository.getTodosByProject(projectId);
-  }
+  List<TodoEntity> _todos = [];
+  List<TodoEntity> get todos => _todos;
 
-  void createTodo(String projectId, String title) {
-    _todoRepository.createTodo(projectId, title);
+  Future<void> getAllTodosByProject(int projectId) async {
+    _todos = await _todoRepository.getAllTodosByProject(projectId);
     notifyListeners();
   }
 
-  void toggleTodo(String id) {
-    _todoRepository.toggleTodo(id);
+  Future<void> createTodo(int projectId, String title) async {
+    await _todoRepository.addTodo(projectId, title);
     notifyListeners();
   }
 
-  void deleteTodo(String id) {
-    _todoRepository.deleteTodo(id);
+  Future<void> toggleTodo(int id) async{
+    await _todoRepository.toggleTodo(id);
     notifyListeners();
   }
 
-  void updateTodo(String id, String title) {
-    _todoRepository.updateTodo(id, title);
+  Future<void> deleteTodo(int id) async{
+    await _todoRepository.deleteTodo(id);
     notifyListeners();
   }
 
-  void deleteProjectTodos(String projectId) {
-    _todoRepository.deleteProjectTodos(projectId);
-    notifyListeners();
-  }
 }

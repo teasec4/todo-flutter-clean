@@ -6,7 +6,7 @@ import 'package:isar_test_todo/pages/todos/widgets/create_todo_sheet.dart';
 import 'package:isar_test_todo/pages/todos/widgets/todo_tile.dart';
 
 class TodosPage extends StatelessWidget {
-  final String projectId;
+  final int projectId;
 
   const TodosPage({super.key, required this.projectId});
 
@@ -25,7 +25,7 @@ class TodosPage extends StatelessWidget {
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context, String todoId) {
+  void _showDeleteConfirmation(BuildContext context, int todoId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -60,13 +60,11 @@ class TodosPage extends StatelessWidget {
     );
 
     final todoProvider = context.watch<TodoProvider>();
-    final todos = todoProvider.getTodosByProject(projectId);
+    context.watch<TodoProvider>().getAllTodosByProject(projectId);
+    final todos = todoProvider.todos;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(project.name),
-        toolbarHeight: 64,
-      ),
+      appBar: AppBar(title: Text(project.name), toolbarHeight: 64),
       body: todos.isEmpty
           ? _emptyView()
           : ListView.builder(
@@ -99,10 +97,7 @@ class TodosPage extends StatelessWidget {
         children: [
           Icon(Icons.check_circle_outline, size: 64, color: Colors.grey),
           SizedBox(height: 16),
-          Text(
-            "还没有待办事项",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
+          Text("还没有待办事项", style: TextStyle(fontSize: 16, color: Colors.grey)),
           Text(
             "添加你的第一个待办事项来开始",
             style: TextStyle(fontSize: 12, color: Colors.grey),

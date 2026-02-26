@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:isar_test_todo/data/models/todo.dart';
+import 'package:isar_test_todo/domain/entity/todo_entity.dart';
 
 class TodoTile extends StatelessWidget {
-  final Todo todo;
+  final TodoEntity todo;
   final VoidCallback onToggle;
   final VoidCallback onLongPress;
 

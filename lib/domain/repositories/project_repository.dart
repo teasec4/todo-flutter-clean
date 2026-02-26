@@ -4,3 +4,4 @@ abstract class ProjectRepository {
   Future<List<ProjectEntity>> getAllProjects();
   Future<void> createProject(String name, [String? description]);
   Future<void> deleteProject(int id);
+}

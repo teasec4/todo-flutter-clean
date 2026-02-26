@@ -27,7 +27,7 @@ class ProjectsPage extends StatelessWidget {
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context, String projectId) {
+  void _showDeleteConfirmation(BuildContext context, int projectId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -41,7 +41,7 @@ class ProjectsPage extends StatelessWidget {
           TextButton(
             onPressed: () {
               context.read<ProjectProvider>().deleteProject(projectId);
-              context.read<TodoProvider>().deleteProjectTodos(projectId);
+
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(
@@ -66,11 +66,12 @@ class ProjectsPage extends StatelessWidget {
               itemCount: projects.length,
               itemBuilder: (context, index) {
                 final project = projects[index];
-                final todoProvider = context.watch<TodoProvider>();
-                final projectTodos =
-                    todoProvider.getTodosByProject(project.id);
-                final completedCount =
-                    projectTodos.where((t) => t.isCompleted).length;
+                context.watch<TodoProvider>().getAllTodosByProject(project.id);
+                final projectTodos = context.watch<TodoProvider>().todos;
+                
+                final completedCount = projectTodos
+                    .where((t) => t.isCompleted)
+                    .length;
 
                 return ProjectTile(
                   project: project,
@@ -99,10 +100,7 @@ class ProjectsPage extends StatelessWidget {
         children: [
           Icon(Icons.folder_open, size: 64, color: Colors.grey),
           SizedBox(height: 16),
-          Text(
-            "还没有项目",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
+          Text("还没有项目", style: TextStyle(fontSize: 16, color: Colors.grey)),
           Text(
             "创建一个新项目来开始",
             style: TextStyle(fontSize: 12, color: Colors.grey),

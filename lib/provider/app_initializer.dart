@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
+import 'package:isar_test_todo/domain/entity/project_entity.dart';
 import 'package:isar_test_todo/domain/entity/todo_entity.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -19,13 +20,17 @@ class AppInitializer with ChangeNotifier {
 
       final dir = await getApplicationDocumentsDirectory();
 
-      _isar = await Isar.open([TodoEntitySchema], directory: dir.path);
+      _isar = await Isar.open(
+        [ProjectEntitySchema, TodoEntitySchema],
+        directory: dir.path,
+      );
 
       _state = AppInitState.ready;
       notifyListeners();
     } catch (e) {
       _state = AppInitState.error;
       notifyListeners();
+      rethrow;
     }
   }
 }

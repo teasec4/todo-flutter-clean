@@ -18,17 +18,24 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppInitializer()..init()),
-        ChangeNotifierProvider(
-          create: (context) {
-            
-            return TodoProvider(
-              TodoRepositoryImpl(context.read<AppInitializer>().isar),
-            );
-          },
+        ChangeNotifierProxyProvider<AppInitializer, TodoProvider>(
+          lazy: false,
+          create: (context) => TodoProvider(
+            TodoRepositoryImpl(context.read<AppInitializer>().isar),
+          ),
+          update: (context, appInit, previous) => TodoProvider(
+            TodoRepositoryImpl(appInit.isar),
+          ),
         ),
-        ChangeNotifierProvider(create: (context) => ProjectProvider(
-          ProjectRepositoryImpl(isar: context.read<AppInitializer>().isar)
-        ),)
+        ChangeNotifierProxyProvider<AppInitializer, ProjectProvider>(
+          lazy: false,
+          create: (context) => ProjectProvider(
+            ProjectRepositoryImpl(isar: context.read<AppInitializer>().isar),
+          ),
+          update: (context, appInit, previous) => ProjectProvider(
+            ProjectRepositoryImpl(isar: appInit.isar),
+          ),
+        ),
       ],
       child: MyApp(),
     ),

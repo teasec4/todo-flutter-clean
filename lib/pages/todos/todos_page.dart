@@ -18,9 +18,6 @@ class _TodosPageState extends State<TodosPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TodoProvider>().watchTodosByProject(widget.projectId);
-    });
   }
 
   Future<void> _showCreateTodo(BuildContext context) async {
@@ -50,11 +47,9 @@ class _TodosPageState extends State<TodosPage> {
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () async {
-              await context.read<TodoProvider>().deleteTodo(todoId);
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
+            onPressed: () {
+              context.read<TodoProvider>().deleteTodo(todoId);
+              Navigator.pop(context);
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
@@ -68,6 +63,7 @@ class _TodosPageState extends State<TodosPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     final projectProvider = context.watch<ProjectProvider>();
     final project = projectProvider.projects.firstWhere(
       (p) => p.id == widget.projectId,
@@ -77,7 +73,7 @@ class _TodosPageState extends State<TodosPage> {
     );
 
     final todoProvider = context.watch<TodoProvider>();
-    final todos = todoProvider.todos;
+    final todos = todoProvider.getTodosByProject(widget.projectId);
 
     return Scaffold(
       appBar: AppBar(title: Text(project.name), toolbarHeight: 64),
@@ -97,7 +93,7 @@ class _TodosPageState extends State<TodosPage> {
                     _showDeleteConfirmation(context, todo.id);
                   },
                 );
-              },
+                },
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateTodo(context),

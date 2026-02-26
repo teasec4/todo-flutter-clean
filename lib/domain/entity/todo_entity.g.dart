@@ -55,7 +55,14 @@ const TodoEntitySchema = CollectionSchema(
       ],
     ),
   },
-  links: {},
+  links: {
+    r'project': LinkSchema(
+      id: -8580494823298184902,
+      name: r'project',
+      target: r'ProjectEntity',
+      single: true,
+    ),
+  },
   embeddedSchemas: {},
 
   getId: _todoEntityGetId,
@@ -126,11 +133,17 @@ Id _todoEntityGetId(TodoEntity object) {
 }
 
 List<IsarLinkBase<dynamic>> _todoEntityGetLinks(TodoEntity object) {
-  return [];
+  return [object.project];
 }
 
 void _todoEntityAttach(IsarCollection<dynamic> col, Id id, TodoEntity object) {
   object.id = id;
+  object.project.attach(
+    col,
+    col.isar.collection<ProjectEntity>(),
+    r'project',
+    id,
+  );
 }
 
 extension TodoEntityQueryWhereSort
@@ -662,7 +675,21 @@ extension TodoEntityQueryObject
     on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {}
 
 extension TodoEntityQueryLinks
-    on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {}
+    on QueryBuilder<TodoEntity, TodoEntity, QFilterCondition> {
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> project(
+    FilterQuery<ProjectEntity> q,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'project');
+    });
+  }
+
+  QueryBuilder<TodoEntity, TodoEntity, QAfterFilterCondition> projectIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'project', 0, true, 0, true);
+    });
+  }
+}
 
 extension TodoEntityQuerySortBy
     on QueryBuilder<TodoEntity, TodoEntity, QSortBy> {

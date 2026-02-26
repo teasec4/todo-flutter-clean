@@ -13,7 +13,6 @@ class ProjectEntity {
   
   late DateTime createdAt;
 
+  @Backlink(to: 'project')
   final todos = IsarLinks<TodoEntity>();
-  
- 
 }

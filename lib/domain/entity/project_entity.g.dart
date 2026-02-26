@@ -38,10 +38,11 @@ const ProjectEntitySchema = CollectionSchema(
   indexes: {},
   links: {
     r'todos': LinkSchema(
-      id: -8868444346707785540,
+      id: -4554704953114002126,
       name: r'todos',
       target: r'TodoEntity',
       single: false,
+      linkName: r'project',
     ),
   },
   embeddedSchemas: {},

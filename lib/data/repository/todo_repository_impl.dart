@@ -50,8 +50,18 @@ class TodoRepositoryImpl implements TodoRepository {
 
   @override
   Future<void> deleteTodo(int id) async {
+    final todo = await isar.todoEntitys.get(id);
+    if (todo == null) return;
+
+    final project = await isar.projectEntitys.get(todo.projectId);
+
     await isar.writeTxn(() async {
       await isar.todoEntitys.delete(id);
+      
+      if (project != null) {
+        project.todos.remove(todo);
+        await project.todos.save();
+      }
     });
   }
 
@@ -60,6 +70,10 @@ class TodoRepositoryImpl implements TodoRepository {
         .filter()
         .projectIdEqualTo(projectId)
         .watch(fireImmediately: true);
+  }
+
+  Stream<List<TodoEntity>> watchAllTodos() {
+    return isar.todoEntitys.where().watch(fireImmediately: true);
   }
 
   Future<List<TodoEntity>> getCompleted() async {

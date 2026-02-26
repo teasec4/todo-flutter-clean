@@ -6,19 +6,20 @@ import 'package:isar_test_todo/domain/repositories/todo_repository.dart';
 class TodoProvider with ChangeNotifier {
   final TodoRepository _todoRepository;
 
-  TodoProvider(this._todoRepository);
-
-  List<TodoEntity> _todos = [];
-  List<TodoEntity> get todos => _todos;
-
-  StreamSubscription<List<TodoEntity>>? _todosSubscription;
-
-  void watchTodosByProject(int projectId) {
-    _todosSubscription?.cancel();
-    _todosSubscription = _todoRepository.watchTodosByProject(projectId).listen((todos) {
-      _todos = todos;
+  TodoProvider(this._todoRepository) {
+    _allTodosSubscription = _todoRepository.watchAllTodos().listen((todos) {
+      _allTodos = todos;
       notifyListeners();
     });
+  }
+
+  List<TodoEntity> _allTodos = [];
+  List<TodoEntity> get allTodos => _allTodos;
+
+  late StreamSubscription<List<TodoEntity>> _allTodosSubscription;
+
+  List<TodoEntity> getTodosByProject(int projectId) {
+    return _allTodos.where((t) => t.projectId == projectId).toList();
   }
 
   Future<void> createTodo(int projectId, String title) async {
@@ -35,7 +36,7 @@ class TodoProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    _todosSubscription?.cancel();
+    _allTodosSubscription.cancel();
     super.dispose();
   }
 }

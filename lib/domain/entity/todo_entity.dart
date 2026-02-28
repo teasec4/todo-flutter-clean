@@ -18,3 +18,6 @@ class TodoEntity {
 
   final project = IsarLink<ProjectEntity>();
 }
+
+// not using Isar Link... 
+// SQL Like db with index 

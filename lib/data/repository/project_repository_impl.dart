@@ -31,6 +31,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
     });
   }
 
+  @override
   Stream<List<ProjectEntity>> watchProjects() {
     return isar.projectEntitys.where().watch(fireImmediately: true);
   }

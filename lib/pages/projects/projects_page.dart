@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:isar_test_todo/core/di/service_locator.dart';
 import 'package:isar_test_todo/pages/projects/widgets/create_project_sheet.dart';
 import 'package:isar_test_todo/pages/projects/widgets/project_tile.dart';
 import 'package:isar_test_todo/provider/project_provider.dart';
-import 'package:isar_test_todo/provider/todo_provider.dart';
-import 'package:provider/provider.dart';
 
-class ProjectsPage extends StatelessWidget {
+
+class ProjectsPage extends ConsumerWidget {
   const ProjectsPage({super.key});
 
-  Future<void> _showCreateProject(BuildContext context) async {
+  Future<void> _showCreateProject(BuildContext context, WidgetRef ref) async {
     final newProject = await showModalBottomSheet<Map<String, String>?>(
       context: context,
       builder: (context) => const CreateProjectSheet(),
@@ -21,14 +20,21 @@ class ProjectsPage extends StatelessWidget {
     if (!context.mounted) return;
 
     if (newProject != null) {
-      getIt<ProjectProvider>().createProject(
-        newProject['name'] ?? '',
-        newProject['description'],
+      final String name = newProject['name'] ?? "";
+      final String desc = newProject['description'] ?? '';
+
+      await ref.read(
+        createProjectProvider((name, desc)).future,
       );
+      ref.invalidate(allProjectsProvider);
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context, int projectId) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    int projectId,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -40,9 +46,12 @@ class ProjectsPage extends StatelessWidget {
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () {
-              getIt<ProjectProvider>().deleteProject(projectId);
-              Navigator.pop(context);
+            onPressed: () async {
+              await ref.read(deleteProjectProvider(projectId).future);
+              ref.invalidate(allProjectsProvider);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
@@ -55,38 +64,45 @@ class ProjectsPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final projects = context.watch<ProjectProvider>().projects;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final projects = ref.watch(allProjectsProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text("项目"), toolbarHeight: 64),
-      body: projects.isEmpty
-          ? _emptyView()
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: projects.length,
-              itemBuilder: (context, index) {
-                final project = projects[index];
-                final todoProvider = context.watch<TodoProvider>();
-                final projectTodos = todoProvider.getTodosByProject(project.id);
-                final completedCount = projectTodos.where((t) => t.isCompleted).length;
-                
-                return ProjectTile(
-                  project: project,
-                  onTap: () {
-                    context.go('/${project.id}/todos');
+    return projects.when(
+      data: (projects) {
+        return Scaffold(
+          appBar: AppBar(title: const Text("项目"), toolbarHeight: 64),
+          body: projects.isEmpty
+              ? _emptyView()
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: projects.length,
+                  itemBuilder: (context, index) {
+                    final project = projects[index];
+
+                    return ProjectTile(
+                      project: project,
+                      onTap: () {
+                        context.go('/${project.id}/todos');
+                      },
+                      onLongPress: () {
+                        _showDeleteConfirmation(context, ref, project.id);
+                      },
+                    );
                   },
-                  onLongPress: () {
-                    _showDeleteConfirmation(context, project.id);
-                  },
-                  totalTodos: projectTodos.length,
-                  completedTodos: completedCount,
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateProject(context),
-        child: const Icon(Icons.add),
+                ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showCreateProject(context, ref),
+            child: const Icon(Icons.add),
+          ),
+        );
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Loading...'), toolbarHeight: 64),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Error'), toolbarHeight: 64),
+        body: Center(child: Text('Error: $err')),
       ),
     );
   }

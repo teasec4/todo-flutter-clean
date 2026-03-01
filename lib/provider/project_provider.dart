@@ -1,45 +1,25 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar_test_todo/domain/entity/project_entity.dart';
-import 'package:isar_test_todo/domain/repositories/project_repository.dart';
+import 'package:isar_test_todo/provider/project_repository_provider.dart';
 
-class ProjectProvider with ChangeNotifier {
-  final ProjectRepository _projectRepository;
-  
-  List<ProjectEntity> _projects = [];
-  List<ProjectEntity> get projects => _projects;
+/// Все проекты
+final allProjectsProvider = FutureProvider.autoDispose<List<ProjectEntity>>((ref) async {
+  final repo = await ref.watch(projectRepositoryProvider.future);
+  return await repo.getAllProjects();
+});
 
-  late StreamSubscription<List<ProjectEntity>> _projectsSubscription;
+/// Создание проекта
+final createProjectProvider = FutureProvider.autoDispose.family<void, (String, String?)>(
+  (ref, args) async {
+    final repo = await ref.watch(projectRepositoryProvider.future);
+    await repo.createProject(args.$1, args.$2);
+  },
+);
 
-  ProjectProvider(this._projectRepository) {
-    _projectsSubscription = _projectRepository.watchProjects().listen((projects) {
-      _projects = projects;
-      notifyListeners();
-    });
-  }
-
-  Future<void> createProject(String name, [String? description]) async {
-    await _projectRepository.createProject(name, description);
-  }
-
-  Future<void> deleteProject(int id) async {
-    await _projectRepository.deleteProject(id);
-  }
-
-  @override
-  void dispose() {
-    _projectsSubscription.cancel();
-    super.dispose();
-  }
-}
-
-// isar.projectEntitys.where().watch(fireImmediately: true);
-
-// late final StreamSubscription _subscription;
-
-// ProjectProvider(this._repository) {
-//   _subscription = _repository.watchProjects().listen((data) {
-//     _projects = data;
-//     notifyListeners();
-//   });
-// }
+/// Удаление проекта
+final deleteProjectProvider = FutureProvider.autoDispose.family<void, int>(
+  (ref, projectId) async {
+    final repo = await ref.watch(projectRepositoryProvider.future);
+    await repo.deleteProject(projectId);
+  },
+);

@@ -5,16 +5,16 @@ class ProjectTile extends StatelessWidget {
   final ProjectEntity project;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
-  final int totalTodos;
-  final int completedTodos;
+
+
 
   const ProjectTile({
     super.key,
     required this.project,
     required this.onTap,
     required this.onLongPress,
-    required this.totalTodos,
-    required this.completedTodos,
+
+
   });
 
   @override
@@ -46,26 +46,7 @@ class ProjectTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               )
             : null,
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '$completedTodos/$totalTodos',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: scheme.onSurface,
-              ),
-            ),
-            Text(
-              '已完成',
-              style: TextStyle(
-                fontSize: 12,
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+        
       ),
     );
   }
